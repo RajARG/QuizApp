@@ -4,15 +4,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 public class MainActivity extends AppCompatActivity {
 
     Button target;
+    Timer timer;
+    int size = 250;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,28 +28,37 @@ public class MainActivity extends AppCompatActivity {
         target.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                testSpeed(target);
             }
         });
-    }
 
-    void testSpeed(Button b){
-        for(int a = 50; a > 5; a--){
-            final int size = a;
-            final Button temp = b;
-            TimerTask t = new TimerTask() {
-                @Override
-                public void run() {
-                    ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) temp.getLayoutParams();
-                    layoutParams.width = size;
-                    layoutParams.height = size;
-                    temp.setLayoutParams(layoutParams);
-                }
-            };
-            new Timer().schedule( t, 250);
-        }
+        int period = 10;
+        new CountDownTimer((size*period*10),period) {
+
+            public void onTick(long millisUntilFinished) {
+                final Button temp = target;
+                final int a = size;
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ConstraintLayout.LayoutParams clpm = (ConstraintLayout.LayoutParams) temp.getLayoutParams();
+                        clpm.width = a;
+                        clpm.height = a;
+                        temp.setLayoutParams(clpm);
+                    }
+                });
+
+                size--;
+            }
+
+            public void onFinish() {
+                ConstraintLayout.LayoutParams clpm = (ConstraintLayout.LayoutParams) target.getLayoutParams();
+                clpm.width = 0;
+                clpm.height = 0;
+                target.setLayoutParams(clpm);
+            }
+
+        }.start();
 
     }
 }
-
-https://developer.android.com/reference/android/os/CountDownTimer
